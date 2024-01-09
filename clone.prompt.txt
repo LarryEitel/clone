@@ -1,0 +1,23 @@
+Prompt:
+
+Please create a bash script named `clone_repo` that performs the following tasks:
+
+- The script should accept a required parameter `git_url` and an optional parameter `tags` which is a comma-separated string.
+- If the `git_url` parameter is not provided, the script should exit with an error message.
+- The script should extract the git username and repo name from the `git_url` parameter. For example, if the `git_url` is: https://github.com/deedima3/treasures-les, the git username should be `deedima3` and the git repo name should be `treasures-les`.
+- The script should build a git clone command string like: `git clone git@github.com:<username>/<repo_name>.git`.
+- The script should change to the existing `repos` directory.
+- The script should create a variable named `username_repo` from the git username and repo.
+- The script should make a new directory in the current directory named the value of `username_repo`. If the directory already exists, it should change to that directory.
+- The script should make a new directory named `metadata`. If the directory already exists, it should change to that directory.
+- The script should make a new file named `metadata.json`. If the file already exists, it should overwrite it.
+- In the `metadata.json` file, the script should add the following details:
+  - `git_url`: the git url
+  - `git_username`: the git username
+  - `git_repo`: the git repo name
+  - `git_branch`: the git branch name
+  - `tags`: an array from a comma delimited split and trimmed list of tags passed in a parameter
+- The script should change back to the `repos/username_repo` directory.
+- The script should clone the git repo into the current directory. If the git repo already exists, it should remove the cloned repo and re-clone it.
+- The script should change back to the `repos` directory.
+- The script should exit on error.

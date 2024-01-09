@@ -1,0 +1,105 @@
+#!/bin/bash
+# Exit script on error
+set -e
+
+# Check if at least one argument is provided
+if [ $# -lt 1 ]; then
+    echo "Usage: $0 <git_url> [tags]"
+    exit 1
+fi
+
+# Required parameter
+git_url=$1
+
+# Optional parameter
+tags=$2
+
+# Convert HTTPS URL to SSH URL
+ssh_url=$(echo $git_url | sed -e 's/https:\/\/github.com\//git@github.com:/')
+echo "ssh_url: $ssh_url"
+
+# Extract username and repo name
+username=$(echo $git_url | cut -d'/' -f4)
+echo "username: $username"
+
+repo=$(basename $ssh_url .git)
+echo "repo: $repo"
+
+# Variable for repos directory
+repos_dir="/c/Users/Larry/iCloudDrive/_repos/git/repos/"
+
+# Variable for username/repo
+username_repo="${username}__${repo}"
+echo "username_repo: $username_repo"
+
+echo "Change to existing repos directory: $repos_dir"
+cd "$repos_dir"
+
+echo "Create or navigate to username_repo directory: $username_repo"
+if [ -d "$username_repo" ]; then
+    cd "$username_repo"
+else
+    mkdir -p "$username_repo"
+    cd "$username_repo"
+fi
+
+echo "cd'd into" + $(pwd)
+
+echo "Create or navigate to metadata directory"
+if [ -d metadata ]; then
+    cd metadata
+else
+    mkdir -p metadata
+    cd metadata
+fi
+echo "$(pwd)"
+
+# Convert comma-separated tags string to a bash array
+IFS=',' read -r -a tags_array <<< "$tags"
+
+# Convert bash array to JSON array
+tags_json=$(printf '%s\n' "${tags_array[@]}" | jq -R . | jq -s .)
+
+
+echo "Create or overwrite metadata.json"
+cat > metadata.json <<EOF
+{
+  "git_url": "$git_url",
+  "git_username": "$username",
+  "git_repo": "$repo",
+  "git_branch": "main",
+  "tags": $tags_json
+}
+EOF
+
+echo "Navigate back to username_repo directory"
+cd ..
+echo "$(pwd)"
+
+
+echo "Create or navigate to repo directory: $(pwd)"
+if [ -d repo ]; then
+    echo "Delete all files in repo directory"
+    rm -rf repo
+fi
+
+echo "mkdir -p repo"
+mkdir -p repo
+cd repo
+
+echo "$(pwd)"
+
+
+echo "Clone the repository $ssh_url"
+git clone $ssh_url .
+
+
+echo "cloned ${ssh_url}" + $(pwd)
+
+
+echo "Remove the .git directory"
+rm -rf .git
+
+
+echo "Change back to the repos directory"
+cd "$repos_dir"
