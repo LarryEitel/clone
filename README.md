@@ -5,6 +5,5 @@ This is a simple bash script that takes a git repository url and clones it to a 
 ```
 chmod +x clone
 
-$ ./clone https://github.com/deedima3/treasures-les map,tanstack,superforms
-
+$ ./clone https://github.com/LarryEitel/clone bash,git,tools
 ```

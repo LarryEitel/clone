@@ -26,7 +26,7 @@ repo=$(basename $ssh_url .git)
 echo "repo: $repo"
 
 # Variable for repos directory
-repos_dir="/c/Users/Larry/iCloudDrive/_repos/git/repos/"
+repos_dir="$(pwd)/repos/"
 
 # Variable for username/repo
 username_repo="${username}__${repo}"
