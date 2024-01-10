@@ -1,0 +1,49 @@
+#!/bin/bash
+
+# Function to print usage instructions
+print_usage() {
+    echo "Usage: $0 <file_pattern> [dir_pattern]"
+    echo "Search for files that match <file_pattern> in directories that match [dir_pattern]."
+    echo "If [dir_pattern] is not provided, all directories are searched."
+    echo "Use -h to display this help message."
+}
+
+# Check if -h is passed
+if [ "$1" = "-h" ]; then
+    print_usage
+    exit 0
+fi
+
+# Define the directory to start the search from
+SEARCH_DIR="./repos"
+
+# Define the list of file patterns to exclude
+EXCLUDE_PATTERNS=("package-lock.json" "pnpm-lock.json") # Replace with your patterns
+
+# Define the regex pattern to search for in files
+FILE_PATTERN=${1} # Required parameter
+
+# Check if FILE_PATTERN is provided
+if [ -z "$FILE_PATTERN" ]; then
+    print_usage
+    exit 1
+fi
+
+# Define the regex pattern to search for directories
+DIR_PATTERN=${2:-"all"} # Default to "all" if no argument is provided
+
+# Convert the exclude patterns array into a regex pattern
+EXCLUDE_REGEX=$(IFS="|" ; echo "${EXCLUDE_PATTERNS[*]}")
+
+# Check if "all" is passed
+if [ "$DIR_PATTERN" = "all" ]; then
+    # Find all files under SEARCH_DIR, filter for paths ending with "repo", remove duplicates, and perform a recursive regex search in each directory, excluding files that match the exclude patterns
+    for dir in $(find "$SEARCH_DIR" -type d | cut -d'/' -f1-4 | grep '/repo$' | sort -u); do
+        find "$dir" -type f -exec grep -lE "$FILE_PATTERN" {} \; | grep -vE "$EXCLUDE_REGEX" | sort -u
+    done
+else
+    # Find package.json files, grep for the directory pattern, extract the directory, cut the path to include only the first 4 directories, filter for paths ending with "repo", remove duplicates, and perform a recursive regex search in each directory, excluding files that match the exclude patterns
+    for dir in $(find "$SEARCH_DIR" -name 'package.json' -exec grep -lE "$DIR_PATTERN" {} \; | xargs -I {} dirname {} | cut -d'/' -f1-4 | grep '/repo$' | sort -u); do
+        find "$dir" -type f -exec grep -lE "$FILE_PATTERN" {} \; | grep -vE "$EXCLUDE_REGEX" | sort -u
+    done
+fi

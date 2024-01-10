@@ -3,6 +3,7 @@ This is a simple bash script that takes a git repository url and clones it to a 
 ## Usage
 
 ```
+chmod +x findall
 chmod +x clone
 
 $ ./clone https://github.com/LarryEitel/clone bash,git,tools
